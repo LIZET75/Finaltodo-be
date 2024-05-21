@@ -1,20 +1,38 @@
 import { Request, Response } from 'express';
-import todo from '../models/todo';
+import Todo from '../models/todo';
+import pool from '../db';
 
-// In-memory array to store todos
-let todos: todo[] = [];
+// OPTION 1 In-memory array to store todos
+// let todos: Todo[] = [{
+//   id : 1,
+//   task : "may-20",
+//   label: "what will the label do"
+// }];
+// OPTION 2 TO CONNECT WITH DATABASE
+let todos: Todo [] = [];
+
 let currentId = todos.length+1;
 
-export const getAllTodos = (req: Request, res: Response) => {
+// OPTION 1 COMMENTED 052024 AS THIS CONNECTS TO 1 THAT IS AN ARRAY HARD CODDED
+// export const getAllTodos = (req: Request, res: Response) => {
+//   return res.status(200).json(todos);
+// };
+
+
+export const getAllTodos = async (req: Request, res: Response) => {
+ let table = "To_Do";
+ const dbResult = await pool.query(`SELECT * FROM ${table}`);
+
+  todos = dbResult.rows;
   return res.status(200).json(todos);
-};
+}
 
 export const createTodo = (req: Request, res: Response) => {
   const { task, label } = req.body;
   if(!task || !label){
     return res.status(400).send("Bad Request, missing fields");
   }
-  const newPost: todo = { id: currentId++, task, label};
+  const newPost: Todo = { id: currentId++, task, label};
   todos.push(newPost);
   return res.status(201).json(newPost);
 };

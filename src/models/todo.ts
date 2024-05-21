@@ -1,9 +1,9 @@
-interface todo{
+interface Todo{
     id: number;
     task: string;
     label: string;   
   }
   
-  export default todo;
+  export default Todo;
 
   
