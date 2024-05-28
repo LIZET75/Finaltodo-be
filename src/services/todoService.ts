@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Todo from '../models/todo';
 import pool from '../db';
 
+
 // OPTION 1 In-memory array to store todos
 // let todos: Todo[] = [{
 //   id : 1,
@@ -26,25 +27,38 @@ export const getAllTodos = async (req: Request, res: Response) => {
   todos = dbResult.rows;
   return res.status(200).json(todos);
 }
+//commented createTodo and changing it below
+// export const createTodo = (req: Request, res: Response) => {
+//   console.log(req.body)
+//   const {  todo  } = req.body;
+//   if(!todo  ){
+//     return res.status(400).send("Bad Request, missing fields");
+//   }
+//   const newPost: Todo = { id: currentId++,  todo};
+//   todos.push(newPost);
+//   return res.status(201).json(newPost);
+// };
 
-export const createTodo = (req: Request, res: Response) => {
-  const { task, label } = req.body;
-  if(!task || !label){
-    return res.status(400).send("Bad Request, missing fields");
-  }
-  const newPost: Todo = { id: currentId++, task, label};
-  todos.push(newPost);
-  return res.status(201).json(newPost);
-};
+export const createTodo = async (req: Request, res: Response) => {
+  let { todo_id, todo } = req.body;
+
+  const dbResult =
+      await pool.query(
+          `INSERT INTO TO_DO ( todo) VALUES `
+          + `('${todo}') RETURNING *;`
+      );
+
+  return res.status(201).json(dbResult.rows);
+}
 
 export const getTodosByLabel = (req: Request, res: Response) => {
     const label = req.params.label;
     let labeledTodos = []
     for(let i=0;i<todos.length;i++){
-        if(todos[i].label == label){
+        // if(todos[i].label == label){
             labeledTodos.push(todos[i]);
         }
-    }
+    
     return res.status(200).json(labeledTodos);
 }
 
@@ -54,8 +68,8 @@ export const updateTodo = (req: Request, res: Response) => {
   if (index === -1) {
     res.status(404).send('Post not found');
   }else {
-    const {id, task, label } = req.body;
-    todos[index] = {id, task, label };
+    const {id, todo } = req.body;
+    todos[index] = {id, todo };
     res.status(200).json(todos[index]);
   }
 };

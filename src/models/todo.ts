@@ -1,7 +1,7 @@
 interface Todo{
     id: number;
-    task: string;
-    label: string;   
+    todo: string;
+     
   }
   
   export default Todo;
