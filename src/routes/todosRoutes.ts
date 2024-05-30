@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/', getAllTodos);
 router.post('/', createTodo);
-router.get('/label/:label', getTodosByLabel);
+// router.get('/label/:label', getTodosByLabel);
 router.put('/:id', updateTodo);
 router.delete('/:id', deletetodo)
 

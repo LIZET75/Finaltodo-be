@@ -40,12 +40,12 @@ export const getAllTodos = async (req: Request, res: Response) => {
 // };
 
 export const createTodo = async (req: Request, res: Response) => {
-  let { todo_id, todo } = req.body;
+  let {  todo } = req.body;
 
   const dbResult =
       await pool.query(
-          `INSERT INTO TO_DO ( todo) VALUES `
-          + `('${todo}') RETURNING *;`
+          `INSERT INTO TO_DO ( todo, done) VALUES `
+          + `('${todo}', false) RETURNING *;`
       );
 
   return res.status(201).json(dbResult.rows);
@@ -62,25 +62,34 @@ export const getTodosByLabel = (req: Request, res: Response) => {
     return res.status(200).json(labeledTodos);
 }
 
-export const updateTodo = (req: Request, res: Response) => {
+export const updateTodo = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const index = todos.findIndex(post => post.id === id); 
-  if (index === -1) {
-    res.status(404).send('Post not found');
-  }else {
-    const {id, todo } = req.body;
-    todos[index] = {id, todo };
-    res.status(200).json(todos[index]);
+  const { isdone } = req.body;
+  try {
+      const result = await pool.query(`UPDATE TO_DO SET id='${id}', isdone='${isdone}' WHERE id=${id} RETURNING *`);
+      return res.status(200).json(result.rows[0]);
+  } catch (err) {
+      console.error(err);
+      return res.status(500).send('Server error');
   }
 };
 
-export const deletetodo = (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  let index = todos.findIndex(todo => todo.id === id);
-  if (index === -1) {
-    res.status(404).send('Post not found');
-  } else {
-    todos = todos.filter(todo => todo.id !== id);
-    res.status(204).send(); // No content to send back
-  }
-};
+export const deletetodo = async (req: Request, res: Response) => {
+//   const id = parseInt(req.params.id);
+//   let index = todos.findIndex(todo => todo.id === id);
+//   if (index === -1) {
+//     res.status(404).send('Post not found');
+//   } else {
+//     todos = todos.filter(todo => todo.id !== id);
+//     res.status(204).send(); // No content to send back
+//   }
+// };
+const id = parseInt(req.params.id);
+    try {
+        const result = await pool.query(`DELETE FROM TO_DO WHERE id=${id} RETURNING *`,);
+        return res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Server error');
+    }
+}
